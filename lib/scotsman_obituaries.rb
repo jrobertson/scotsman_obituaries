@@ -25,7 +25,7 @@ class ScotsmanObituaries
 
     @cookie = raw_cookie.to_a.map {|key,val| "%s=%s" % [key, val]}.join '; '
 
-    @url_base = 'http://announce.jpress.co.uk/'
+    @url_base = 'http://announce.jpress.co.uk'
     
   end
 
@@ -39,23 +39,33 @@ class ScotsmanObituaries
       last_month: 31
     }
 
-    url = ''
-
-    url = @url_base + "search?keywords=#{title}&" + \
+    search_url = @url_base + "/search?keywords=#{title}&" + \
      "date_limit=#{days[date_range.to_sym]}&date=" + \
           "&type=obit&_fstatus=search&s_source=jpsc_scot"
 
-    s = open(url, "Cookie" => @cookie).read
+    s = open(search_url, "Cookie" => @cookie).read
     doc = Nokorexi.new(s).to_doc
     e = doc.at_css '.results'
 
     e.xpath('li/div[@class="notice"]').inject([]) do |r,notice|
+      
       heading = notice.text('h2/a')
       short_text = notice.text('p').strip
       pubdate = Date.parse(notice.\
            element('meta[@itemprop="datePublished"]').attributes[:content])
-      r << {heading: heading, short_text: short_text, pubdate: pubdate}
+      id = notice.element('div/a').attributes[:href][/\/(\d+)\?/,1]
+
+      r << {id: id, heading: heading, short_text: short_text, pubdate: pubdate}
     end
+    
+  end
+  
+  def more_info(id)
+
+    url = @url_base + '/edinburgh-evening-news-and-' + \
+                                     'scotsman-publications/obituary/' + id
+    s = open(url, "Cookie" => @cookie).read
+    Nokorexi.new(s).to_doc.at_css('.notice_text').text('p')
     
   end
 

@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'scotsman_obituaries'
-  s.version = '0.1.0'
+  s.version = '0.1.1'
   s.summary = 'A web scraper to scrape the search results from the Scotsman and Edinburgh Evening News obituary annoucements'
   s.authors = ['James Robertson']
   s.files = Dir['lib/scotsman_obituaries.rb']
